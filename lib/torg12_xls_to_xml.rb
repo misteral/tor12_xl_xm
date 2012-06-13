@@ -18,6 +18,7 @@ module Torg12XlsToXml
   def self.write_file(file)
     #$nad = "we"
     #puts builder.to_xml
+    File.delete(file) if File.exist?(file)
     f = File.new(file, 'w')
     #File.open('file.xml', 'w'){ |file| file.write string }
     f.write(@builder.to_xml)
@@ -125,20 +126,20 @@ module Torg12XlsToXml
   end
 
  def self.write_xml
-    @builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-16') do
+    @builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do
     КоммерческаяИнформация('ВерсияСхемы' => '2.03', 'ДатаФормирования' => DateTime.now.to_s) {
       Документ {
-        Ид
-        Номер
-        Дата
+        #Ид
+        #Номер
+        Дата "2012-04-23"
         ХозОперация "Отпуск товара"
-        Роль
+        #Роль
         Валюта "руб"
         Курс "1"
         Сумма $product_all_sum
         Контрагенты {
           Контрагент {
-            Ид
+            #Ид
             Наименование $contractor_1[0]
             ОфициальноеНаименование $contractor_1[0]
             ЮридическийАдрес {
@@ -169,30 +170,31 @@ module Torg12XlsToXml
               }
             }
             ИНН $contractor_1[1].split(" ")[1]
-            КПП
+            КПП "0000000000"
             Роль "Продавец"
           }
           Контрагент {
-            ИД
+            #ИД
             Наименование $contractor_2[0]
             ПолноеНаименование $contractor_2[0]
             ИНН $inn_2
+            КПП "592001001"
             Роль "Покупатель"
           }
         }
-        Время
+        #Время
         Налоги {
           Налог {
             Наименовение "НДС"
-            УчтеноВСумме
-            Сумма "----после всего остального----"
+            УчтеноВСумме "true"
+            Сумма "81"
           }
         }
         Товары {
           j = 0
           while !$product_name[j].nil?
           Товар {
-            Ид
+            #Ид
             Артикул
             Наименование $product_name[j]
             БазоваяЕденица("Код" => $product_cod[j],  "НаименованиеПолное" => $product_named[j]) {
@@ -238,12 +240,12 @@ module Torg12XlsToXml
                 Значение $product_name[j]
               }
             }
-            ИдКаталога
+            #ИдКаталога
             ЦенаЗаЕдиницу ($product_sum[j].to_i/$product_amount[j].to_i).to_i
             Количество $product_amount[j]
             Сумма $product_sum[j]
             Единица $product_named[j]
-            Коэффициент
+            Коэффициент 1
             Наголи {
               Налог {
                 Наименование
